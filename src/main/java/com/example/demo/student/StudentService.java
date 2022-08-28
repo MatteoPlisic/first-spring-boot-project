@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
@@ -41,5 +42,20 @@ public class StudentService {
         throw new IllegalStateException("student with id "+id+" does not exist");
     }
     studentsRepository.deleteById(id);
+    }
+    @Transactional
+    public void updateStudent(Long studentId, String name, String email) {
+        Student student = studentsRepository.findById(studentId).orElseThrow(() -> new IllegalStateException("student with that id does not exist"));
+        if(name != null){
+            student.setName(name);
+        }
+        if(email != null){
+            Optional<Student> studentOptional = studentsRepository.findStudentByEmail(email);
+            if(studentOptional.isPresent()){
+                throw new IllegalStateException("email is taken");
+            }
+                      student.setEmail(email);
+        }
+
     }
 }
